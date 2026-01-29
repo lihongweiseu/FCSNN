@@ -1,6 +1,6 @@
 ## Codes and data for the research:
 
-📝 Codes and data for the paper: Fast-training continuous-time state-space neural network for dynamic response prediction
+📝 Codes and data for the paper: A training-efficient Wiener-type neural network modeling approach for structural dynamic response prediction
 
 ## ⚙️ Requirements
 - Python 3.11+
