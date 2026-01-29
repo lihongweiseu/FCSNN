@@ -1,6 +1,6 @@
 # %%
 exec(open('HB_exec.py').read())
-from FCSNN_tools import FCSNN
+from WNN_tools import WNN
 from CSNN_tools import CSNN_create, CSNN_cal
 from LSTM_tools import LSTM_create
 os.chdir(current_path)
@@ -40,18 +40,18 @@ y_pre = np.zeros((4, Nt, N2))
 in_s = 1
 out_s = 1
 
-# FCSNN
+# WNN
 non_layer_s = 1
 state_s=8
 A_ini = -0.01 * torch.ones(state_s, state_s)
 B_ini = torch.rand(in_s, state_s)
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, 'cpu', bias_status)
-pt_match = glob.glob(os.path.join('./saved_models', '*_FCSNN_'+str(state_s)+'.pt'))
-FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, 'cpu', bias_status)
+pt_match = glob.glob(os.path.join('./saved_models', '*_WNN_'+str(state_s)+'.pt'))
+WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
 u_torch = torch.tensor(u, dtype=torch.float)
-[y_FCSNN_torch,x] = FCSNN_model(u_torch)
-y_pre[0,:,:] = y_FCSNN_torch.detach().reshape([Nt, N2]).numpy()
+[y_WNN_torch,x] = WNN_model(u_torch)
+y_pre[0,:,:] = y_WNN_torch.detach().reshape([Nt, N2]).numpy()
 
 # CSNN
 state_non_layer_s=1
@@ -88,7 +88,7 @@ PCC_aver = np.zeros((3, 4))
 PCC_aver[0, :] = np.mean(PCC[0:N1, :], axis=0)
 PCC_aver[1, :] = np.mean(PCC[N1:N2, :], axis=0)
 PCC_aver[2, :] = np.mean(PCC[:, :], axis=0)
-model_name1=['FCSNN','CSNN','LSTM','PhyCNN']
+model_name1=['WNN','CSNN','LSTM','PhyCNN']
 for i in range(4):
     val1, idx1 = min((val, idx) for (idx, val) in enumerate(PCC[0:N1, i]))
     val2, idx2 = min((val, idx) for (idx, val) in enumerate(PCC[N1:N2, i]))
@@ -96,7 +96,7 @@ for i in range(4):
           +' & '+'{:.5f}'.format(PCC_aver[1, i].item())+' & '+'{:.5f}'.format(val2.item())+' (case '+str(idx2+N1+1)+')'+r' \\')
 
 cm = 1 / 2.54
-model_name=['FCSNN (8)','CSNN (3)','LSTM (18)','PhyCNN']
+model_name=['WNN (8)','CSNN (3)','LSTM (18)','PhyCNN']
 # colors = [(0.75,1,0,0.4),(0.75,0.5,0.25,0.4),(0.5,0.5,0.5,0.4),(0,0,1,0.4)]
 colors = ['r', 'b', 'g', 'c']
 markers = ['v','^','o', 's']
@@ -145,7 +145,7 @@ fig2 = plt.figure(figsize=(14 * cm, 7 * cm))
 for i in range(2):
     ax = fig2.add_subplot(2,1,i+1)
     ax.plot(t, y_ref[:,j[i]-1:j[i]], color='k', lw=0.5, label='Measurement')
-    ax.plot(t, y_pre[0,:,j[i]-1:j[i]], color='r', dashes=[8, 2, 4, 2], lw=0.5, label='FCSNN (8)')
+    ax.plot(t, y_pre[0,:,j[i]-1:j[i]], color='r', dashes=[8, 2, 4, 2], lw=0.5, label='WNN (8)')
     ax.set_ylim([-yl[i][0], yl[i][0]])
     ax.set_yticks(np.arange(-yl[i][0], yl[i][0]+0.1, yl[i][1]))
     ax.set_xlim([xl[i][0], xl[i][1]])

@@ -1,6 +1,6 @@
 # %%
 exec(open('MR_exec.py').read())
-from FCSNN_tools import FCSNN
+from WNN_tools import WNN
 from CSNN_tools import CSNN_create, CSNN_cal
 from LSTM_tools import LSTM_create
 os.chdir(current_path)
@@ -46,18 +46,18 @@ y_pre = np.zeros((Nt2, 1))
 in_s = 1
 out_s = 1
 
-# FCSNN
+# WNN
 non_layer_s = 1
 state_s=20
 A_ini = -0.01 * torch.ones(state_s, state_s)
 B_ini = torch.rand(in_s, state_s)
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32)
-FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, 'cpu', bias_status)
-pt_match = glob.glob(os.path.join('./saved_models', 'MR_FCSNN_20_unstable.pt'))
-FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, 'cpu', bias_status)
+pt_match = glob.glob(os.path.join('./saved_models', 'MR_WNN_20_unstable.pt'))
+WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
 u_torch = torch.tensor(u, dtype=torch.float)
-[y_FCSNN_torch,x] = FCSNN_model(u_torch)
-y_pre = y_FCSNN_torch.detach().reshape([Nt2, 1]).numpy()
+[y_WNN_torch,x] = WNN_model(u_torch)
+y_pre = y_WNN_torch.detach().reshape([Nt2, 1]).numpy()
 
 cm = 1 / 2.54
 #%%
@@ -66,7 +66,7 @@ fig1 = plt.figure(figsize=(8.8 * cm, 4 * cm))
 ax = fig1.add_subplot(111)
 ax.plot([10, 10], [-0.2, 2], 'gray', lw=0.75)
 ax.plot(t, y_ref/1000, color='k', lw=0.5, label='Exp.')
-ax.plot(t, y_pre/1000, color='r', dashes=[2, 2], lw=0.5, label='FCSNN (20)')
+ax.plot(t, y_pre/1000, color='r', dashes=[2, 2], lw=0.5, label='WNN (20)')
 ax.text(9, 0.260, 'Training', ha='center', va='center', fontsize=7)
 ax.text(11, 0.260, 'Testing', ha='center', va='center', fontsize=7)
 ax.set_ylim([-0.2, 2])

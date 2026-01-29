@@ -1,10 +1,10 @@
 # %%
 exec(open('MR_exec.py').read())
-from FCSNN_diag_exp0 import FCSNN, FCSNN_training
+from WNN_diag_exp0 import WNN, WNN_training
 os.chdir(current_path)
 sys.path.append('.')
 
-# Define the configuration of FCSNN
+# Define the configuration of WNN
 in_s = 1
 out_s = 1
 non_layer_s = 1
@@ -15,14 +15,14 @@ for i in range(8, 9):
     # i = 1
     state_s=i
     non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-    FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, device, bias_status)
-    # for parameters in FCSNN_model.parameters():
+    WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, device, bias_status)
+    # for parameters in WNN_model.parameters():
     #     print(parameters,'\n')
-    trainable_num = sum(p.numel() for p in FCSNN_model.parameters() if p.requires_grad)
+    trainable_num = sum(p.numel() for p in WNN_model.parameters() if p.requires_grad)
     print('State size: ',i,', total number of trainable parameters: ', trainable_num,'\n')
 
-    FCSNN_model_m, loss_all, loss_m, cost_time, im, cost_time_str = FCSNN_training(dt, u[0:Nt2,:,:], FCSNN_model, N, y_ref[0:Nt2,:,:], in_s, state_s, out_s, non_layer_s, non_neuron, device, bias_status)
-    torch.save(FCSNN_model_m.state_dict(), './saved_models/'+name+'_FCSNN_diag_exp0_'+str(state_s)+'.pt')
+    WNN_model_m, loss_all, loss_m, cost_time, im, cost_time_str = WNN_training(dt, u[0:Nt2,:,:], WNN_model, N, y_ref[0:Nt2,:,:], in_s, state_s, out_s, non_layer_s, non_neuron, device, bias_status)
+    torch.save(WNN_model_m.state_dict(), './saved_models/'+name+'_WNN_diag_exp0_'+str(state_s)+'.pt')
 
 All_end = time.time()
 All_cost_time = All_end - All_start
@@ -33,17 +33,17 @@ state_s=8
 A_ini = -0.01 * torch.rand(state_s, state_s)
 B_ini = torch.rand(in_s, state_s)
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
-pt_match = glob.glob(os.path.join('./saved_models', '*_FCSNN_diag_exp0_'+str(state_s)+'.pt'))
-FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
+pt_match = glob.glob(os.path.join('./saved_models', '*_WNN_diag_exp0_'+str(state_s)+'.pt'))
+WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
 u_torch = torch.tensor(u, dtype=torch.float)
 Nt=Nt2
-[y_pre_torch,x] = FCSNN_model(u_torch[0:Nt,:,:])
+[y_pre_torch,x] = WNN_model(u_torch[0:Nt,:,:])
 y_ref = y_ref.reshape([Nt2, 1])
 y_pre = y_pre_torch.reshape([Nt, 1]).reshape([Nt2, 1]).detach().numpy()
 
 Para=[]
-for parameters in FCSNN_model.parameters():
+for parameters in WNN_model.parameters():
         # print(parameters,'\n')
         Para.append(parameters)
 A_diag0 = Para[0]

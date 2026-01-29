@@ -1,6 +1,6 @@
 # %%
 exec(open('MR_exec.py').read())
-from FCSNN_diag_exp0 import FCSNN
+from WNN_diag_exp0 import WNN
 from CSNN_tools import CSNN_create, CSNN_cal
 from LSTM_tools import LSTM_create
 os.chdir(current_path)
@@ -47,28 +47,28 @@ in_s = 1
 out_s = 1
 non_layer_s = 1
 
-# FCSNN
+# WNN
 state_s=8
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
-pt_match = glob.glob(os.path.join('./saved_models', 'MR_FCSNN_diag_exp0_8.pt'))
-FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
+pt_match = glob.glob(os.path.join('./saved_models', 'MR_WNN_diag_exp0_8.pt'))
+WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
 u_torch = torch.tensor(u, dtype=torch.float)
-[y_FCSNN_torch,x] = FCSNN_model(u_torch)
-y_pre[:,0:1] = y_FCSNN_torch.detach().reshape([Nt2, 1]).numpy()
+[y_WNN_torch,x] = WNN_model(u_torch)
+y_pre[:,0:1] = y_WNN_torch.detach().reshape([Nt2, 1]).numpy()
 
-# FCSNN
+# WNN
 state_s=7
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
-pt_match = glob.glob(os.path.join('./saved_models', 'MR_FCSNN_diag_exp2_7.pt'))
-FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
+pt_match = glob.glob(os.path.join('./saved_models', 'MR_WNN_diag_exp2_7.pt'))
+WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
 u_torch = torch.tensor(u, dtype=torch.float)
-[y_FCSNN_torch,x] = FCSNN_model(u_torch)
-y_pre[:,1:2] = y_FCSNN_torch.detach().reshape([Nt2, 1]).numpy()
+[y_WNN_torch,x] = WNN_model(u_torch)
+y_pre[:,1:2] = y_WNN_torch.detach().reshape([Nt2, 1]).numpy()
 
 cm = 1 / 2.54
-model_name=['FCSNN (8)','FCSNN (7)']
+model_name=['WNN (8)','WNN (7)']
 colors = ['r', 'r']
 #%%
 fig1 = plt.figure(figsize=(14 * cm, 4 * cm))

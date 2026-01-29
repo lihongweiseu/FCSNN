@@ -12,7 +12,7 @@ current_path = os.path.dirname(__file__)
 parent_path = os.path.dirname(current_path)
 os.chdir(parent_path)
 sys.path.append('.')
-from FCSNN_tools import FCSNN
+from WNN_tools import WNN
 from CSNN_tools import CSNN_create, CSNN_cal
 os.chdir(current_path)
 sys.path.append('.')
@@ -95,20 +95,20 @@ for i in range(1,5):
 in_s = 1
 out_s = 1
 
-# FCSNN
+# WNN
 non_layer_s = 1
 state_s=6
 A_ini = -0.01 * torch.ones(state_s, state_s)
 B_ini = torch.rand(in_s, state_s)
 non_neuron = state_s * np.ones(non_layer_s, dtype=np.int32) + in_s
-pt_match = glob.glob(os.path.join('./saved_models', '*_FCSNN_'+str(state_s)+'.pt'))
+pt_match = glob.glob(os.path.join('./saved_models', '*_WNN_'+str(state_s)+'.pt'))
 
 for i in range(0,5):
-    FCSNN_model = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt[i], 'cpu', False)
-    FCSNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
+    WNN_model = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt[i], 'cpu', False)
+    WNN_model.load_state_dict(torch.load(pt_match[0], map_location='cpu'))
     u_torch = torch.tensor(u[i].reshape([Nt[i], N2, 1]), dtype=torch.float)
-    [y_FCSNN_torch,x] = FCSNN_model(u_torch)
-    y_pre[i][0] = y_FCSNN_torch.detach().reshape([Nt[i], N2]).numpy()
+    [y_WNN_torch,x] = WNN_model(u_torch)
+    y_pre[i][0] = y_WNN_torch.detach().reshape([Nt[i], N2]).numpy()
 
 # CSNN
 state_non_layer_s=2
@@ -141,7 +141,7 @@ for k in range(5):
     PCC_aver[k][2, :] = np.mean(PCC[k], axis=0)
     # print(PCC_aver[k])
 
-model_name1=['FCSNN','CSNN']
+model_name1=['WNN','CSNN']
 for k in range(1, 5):
     print('\midrule')
     print('\multirow{2}{*}{'+str(int(fre[k]))+' Hz}')

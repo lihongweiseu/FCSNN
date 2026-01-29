@@ -1,6 +1,6 @@
 # %%
 exec(open('NS_exec.py').read())
-from FCSNN_tools import FCSNN, FCSNN_training
+from WNN_tools import WNN, WNN_training
 from CSNN_tools import CSNN_create, CSNN_cal, CSNN_training
 from LSTM_tools import LSTM_create, LSTM_training
 os.chdir(current_path)
@@ -20,7 +20,7 @@ para_num = np.zeros((3, 20))
 train_time1 = np.zeros((3, 20))
 train_time2 = np.zeros((3, 10))
 # %% 
-# FCSNN
+# WNN
 non_layer_s = 1
 state_non_layer_s=1
 out_non_layer_s=1
@@ -30,10 +30,10 @@ for i in range(1,21):
     A_ini = -0.01 * torch.rand(i, i)
     B_ini = torch.rand(in_s, i)
     non_neuron = i * np.ones(non_layer_s, dtype=np.int32) + in_s
-    FCSNN_model = FCSNN(in_s, i, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, device, bias_status)
-    para_num[0,i-1] = sum(p.numel() for p in FCSNN_model.parameters() if p.requires_grad)
+    WNN_model = WNN(in_s, i, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, device, bias_status)
+    para_num[0,i-1] = sum(p.numel() for p in WNN_model.parameters() if p.requires_grad)
     print('State size: ',i,', total number of trainable parameters: ', para_num[0,i-1],'\n')
-    _, _, _, train_time1[0,i-1], _, _ = FCSNN_training(dt, u_train[9], FCSNN_model, N, y_ref_train[9], in_s, i, out_s, non_layer_s, non_neuron, A_ini, B_ini, device, bias_status)
+    _, _, _, train_time1[0,i-1], _, _ = WNN_training(dt, u_train[9], WNN_model, N, y_ref_train[9], in_s, i, out_s, non_layer_s, non_neuron, A_ini, B_ini, device, bias_status)
 
     state_non_neuron = i * np.ones(1, dtype=np.int32) + in_s  # size of each nonlinear layer
     out_non_neuron = np.ones(1, dtype=np.int32)  # size of each nonlinear layer
@@ -51,8 +51,8 @@ for i in range(0,10):
     A_ini = -0.01 * torch.rand(4, 4)
     B_ini = torch.rand(in_s, 4)
     non_neuron = 4 * np.ones(non_layer_s, dtype=np.int32) + in_s
-    FCSNN_model = FCSNN(in_s, 4, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, device, bias_status)
-    _, _, _, train_time2[0,i], _, _ = FCSNN_training(dt, u_train[i], FCSNN_model, N, y_ref_train[i], in_s, 4, out_s, non_layer_s, non_neuron, A_ini, B_ini, device, bias_status)
+    WNN_model = WNN(in_s, 4, out_s, non_layer_s, non_neuron, A_ini, B_ini, dt, device, bias_status)
+    _, _, _, train_time2[0,i], _, _ = WNN_training(dt, u_train[i], WNN_model, N, y_ref_train[i], in_s, 4, out_s, non_layer_s, non_neuron, A_ini, B_ini, device, bias_status)
 
     state_non_neuron = 4 * np.ones(1, dtype=np.int32) + in_s  # size of each nonlinear layer
     out_non_neuron = np.ones(1, dtype=np.int32)  # size of each nonlinear layer
@@ -99,8 +99,8 @@ else:
     plt.rcParams['text.latex.preamble'] = r'\makeatletter \newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@} \makeatother'
 
 cm = 1 / 2.54
-model_name1=['FCSNN (1-20)','CSNN (1-20)','LSTM (1-18)']
-model_name2=['FCSNN (5)','CSNN (5)','LSTM (5)']
+model_name1=['WNN (1-20)','CSNN (1-20)','LSTM (1-18)']
+model_name2=['WNN (5)','CSNN (5)','LSTM (5)']
 colors = ['r', 'b', 'g']
 markers = ['v','^','o']
 # %%
