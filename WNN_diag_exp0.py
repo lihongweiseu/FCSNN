@@ -19,11 +19,11 @@ np.random.seed(seed)  # numpy module.
 random.seed(seed)  # Python random module.
 torch.manual_seed(seed)
 
-def FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, device, bias_status):
-    # Define FCSNN
-    class FCSNN(nn.Module):
+def WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, device, bias_status):
+    # Define WNN
+    class WNN(nn.Module):
         def __init__(self):
-            super(FCSNN, self).__init__()
+            super(WNN, self).__init__()
             self.A_diag0 = Parameter(torch.rand(state_s).to(device))
             
             if in_s>1:
@@ -82,39 +82,39 @@ def FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, device, bias_status
             
             return y, x
 
-    FCSNN_model = FCSNN().to(device)
-    return FCSNN_model
+    WNN_model = WNN().to(device)
+    return WNN_model
 
-def FCSNN_training(dt, u, FCSNN_model, N, y_ref, in_s, state_s, out_s, non_layer_s, non_neuron, device, bias_status):
+def WNN_training(dt, u, WNN_model, N, y_ref, in_s, state_s, out_s, non_layer_s, non_neuron, device, bias_status):
     u_torch = torch.tensor(u, dtype=torch.float).to(device)
     y_ref_torch = torch.tensor(y_ref, dtype=torch.float).to(device)
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(FCSNN_model.parameters(), 1e-2) # 1e-3, weight_decay=1e-8
+    optimizer = optim.Adam(WNN_model.parameters(), 1e-2) # 1e-3, weight_decay=1e-8
 
     im=1
     loss_all = np.zeros((N + 1, 1))
 
-    [y_pre_torch,_] = FCSNN_model(u_torch)
+    [y_pre_torch,_] = WNN_model(u_torch)
     loss = criterion(y_pre_torch, y_ref_torch)
     loss_all[0:1, :] = loss.item()
     loss_m = loss.item()
-    FCSNN_model_m = FCSNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
-    FCSNN_model_m.load_state_dict(FCSNN_model.state_dict())
+    WNN_model_m = WNN(in_s, state_s, out_s, non_layer_s, non_neuron, dt, 'cpu', bias_status)
+    WNN_model_m.load_state_dict(WNN_model.state_dict())
 
     start = datetime.datetime.now()
     for i in range(N):
-        FCSNN_model.zero_grad()
+        WNN_model.zero_grad()
         loss.backward(retain_graph=True)
         optimizer.step()
 
-        [y_pre_torch,_] = FCSNN_model(u_torch)
+        [y_pre_torch,_] = WNN_model(u_torch)
         loss = criterion(y_pre_torch, y_ref_torch)
         i1 = i + 1
         loss_all[i1:i1 + 1, :] = loss.item()
 
         if loss.item() < loss_m:
             loss_m = loss.item()
-            FCSNN_model_m.load_state_dict(FCSNN_model.state_dict())
+            WNN_model_m.load_state_dict(WNN_model.state_dict())
             im=i1
 
         if i1 % 10 == 0 or i == 0:
@@ -137,4 +137,4 @@ def FCSNN_training(dt, u, FCSNN_model, N, y_ref, in_s, state_s, out_s, non_layer
 
     val, idx = min((val, idx) for (idx, val) in enumerate(loss_all))
     print('Minimal loss: ' + '{:.6e}'.format(val.item())+ ' (iteration: ' + str(idx) +')'+ '\n')
-    return FCSNN_model_m, loss_all, loss_m, cost_time, im, cost_time_str
+    return WNN_model_m, loss_all, loss_m, cost_time, im, cost_time_str
